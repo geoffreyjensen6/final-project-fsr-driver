@@ -25,6 +25,7 @@
 #include <linux/kdev_t.h>
 #include <linux/device.h>
 #include <linux/version.h>
+#include <linux/interrupt.h>
 #include "fsr_spice_rack.h"
 
 MODULE_AUTHOR("Geoffrey Jensen");
@@ -60,6 +61,7 @@ ssize_t fsr_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
 	PDEBUG("In fsr_read\n");
 	temp = gpio_get_value(dev->spice_rack_dev.spice1.gpio_number);
 	temp = temp + (gpio_get_value(dev->spice_rack_dev.spice2.gpio_number)<<1);
+	temp = temp + (gpio_get_value(dev->spice_rack_dev.spice3.gpio_number)<<2);
 	output_str = temp;
 	PDEBUG("output_str is %d and temp is %i", output_str, temp);
 
@@ -121,6 +123,8 @@ static int fsr_drv_probe(struct platform_device *pdev){
 	//Find the GPIO numbers of defined in the device tree
 	fsr_device.spice_rack_dev.spice1.name = "spice1-gpio";
 	fsr_device.spice_rack_dev.spice2.name = "spice2-gpio";
+	fsr_device.spice_rack_dev.spice3.name = "spice3-gpio";
+
 
 	fsr_device.spice_rack_dev.spice1.gpio_number = of_get_named_gpio(np, fsr_device.spice_rack_dev.spice1.name, 0);
 	PDEBUG("GPIO Number is %i for Spice1", fsr_device.spice_rack_dev.spice1.gpio_number);
@@ -133,7 +137,14 @@ static int fsr_drv_probe(struct platform_device *pdev){
         PDEBUG("GPIO Number is %i for Spice2", fsr_device.spice_rack_dev.spice2.gpio_number);
 	if(fsr_device.spice_rack_dev.spice2.gpio_number < 0){
 		printk(KERN_ERR "Unable to find GPIO for spice2-gpio in device tree");
-		result = fsr_device.spice_rack_dev.spice1.gpio_number;
+		result = fsr_device.spice_rack_dev.spice2.gpio_number;
+		return result;
+	}
+	fsr_device.spice_rack_dev.spice3.gpio_number = of_get_named_gpio(np, fsr_device.spice_rack_dev.spice3.name, 0);
+        PDEBUG("GPIO Number is %i for Spice3", fsr_device.spice_rack_dev.spice3.gpio_number);
+	if(fsr_device.spice_rack_dev.spice3.gpio_number < 0){
+		printk(KERN_ERR "Unable to find GPIO for spice3-gpio in device tree");
+		result = fsr_device.spice_rack_dev.spice3.gpio_number;
 		return result;
 	}
 

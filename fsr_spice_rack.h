@@ -32,6 +32,7 @@ struct spice {
 struct spice_rack {
         struct spice spice1;
         struct spice spice2;
+	struct spice spice3;
 };
 
 struct fsr_dev
