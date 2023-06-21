@@ -48,7 +48,7 @@ int fsr_open(struct inode *inode, struct file *filp)
 
 int fsr_release(struct inode *inode, struct file *filp)
 {
-    	PDEBUG("in fsr_release\n");
+    	PDEBUG("In fsr_release\n");
     	return 0;
 }
 
@@ -58,12 +58,10 @@ ssize_t fsr_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
         unsigned char output_str;
 	struct fsr_dev *dev = filp->private_data;
 
-	PDEBUG("In fsr_read\n");
 	temp = gpio_get_value(dev->spice_rack_dev.spice1.gpio_number);
 	temp = temp + (gpio_get_value(dev->spice_rack_dev.spice2.gpio_number)<<1);
 	temp = temp + (gpio_get_value(dev->spice_rack_dev.spice3.gpio_number)<<2);
 	output_str = temp;
-	PDEBUG("output_str is %d and temp is %i", output_str, temp);
 
 	if(copy_to_user(buf, &output_str, count)){
 		return -EFAULT;
@@ -99,8 +97,7 @@ static int fsr_setup_cdev(struct fsr_dev *dev)
 		return -1;
 	}
 	PDEBUG("Successfully created class\n");
-	err = device_create(dev_class, NULL, devno, NULL, "fsr_gpio_%d", 0);
-	if(err == NULL){
+	if((device_create(dev_class, NULL, devno, NULL, "fsr_gpio_%d", 0)) == NULL){
 		printk(KERN_ERR "Failed to create device\n");
 		return -1;
 	}
@@ -165,9 +162,6 @@ static int fsr_drv_probe(struct platform_device *pdev){
 	}
 
 	return result;
-
-	fail:
-		return result;
 }
 
 static const struct of_device_id fsr_match[] = {

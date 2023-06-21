@@ -1,0 +1,20 @@
+#!/bin/sh
+
+start() {
+	echo "Loading FSR Module"
+	modprobe fsr_spice_rack
+}
+
+stop() {
+	echo "Unloading FSR Module"
+	rmmod fsr_spice_rack.ko
+}
+
+case "$1" in
+	start)
+		start;;
+	stop)
+		stop;;
+	*)
+		start;;
+esac	
